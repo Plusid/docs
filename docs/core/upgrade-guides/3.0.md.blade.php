@@ -36,19 +36,24 @@ When this is finished, you should see version 12 installed when you run `node -v
 Use `wget` to fetch the `v3-migrations.sql` script.
 
 ```
-wget -N https://dsnapshots.ark.io/v3-migrations.sql
+wget -N https://snapshots.ark.io/v3-migrations.sql
 ```
 
-### Step 2. Port Config
+### Step 2. Apply the iptables script
 
-Core now uses three different ports for p2p: for **devnet** they are **4002**, **4012**, and **4022**.  
-**Please ensure that you are allowing tcp traffic to these ports.**
+Get and apply the iptables script for core :
 
+```
+wget -N https://snapshots.ark.io/v3-iptables.sh
+bash ./v3-iptables.sh start
+```
+
+This will set up some basic iptables rules to protect your node.
 
 ### Step 3. Update & Start Core
 
 <x-alert type="danger">
-**WARNING:** The commands below will remove and reset your configuration files in `~/.config/ark-core/devnet`. 
+**WARNING:** The commands below will remove and reset your configuration files in `~/.config/ark-core/mainnet`. 
 **Please backup any configuration files that you may need later such as your `delegate.json`, `plugin.js` & `.env` files.**
 </x-alert>
 First, make sure that in your current directory you have the **database migration script** (where you created the `v3-migrations.sql` file). 
@@ -56,10 +61,10 @@ First, make sure that in your current directory you have the **database migratio
 Run these commands (adapt the `psql` command with your user and database, default DB password is `password`):
 
 ```
-pm2 stop all && ark snapshot:rollback --height=5635000
+pm2 stop all
 ```
 ```
-psql -U ark -h 127.0.0.1 -d ark_devnet -f v3-migrations.sql
+psql -U ark -h 127.0.0.1 -d ark_mainnet -f v3-migrations.sql
 ```
 ```
 ark update 
@@ -67,16 +72,16 @@ ark update
 
 > *Backup your delegate.json file if applicable with the command below:*
 ```
-cp ~/.config/ark-core/devnet/delegates.json ~/delegate.json.backup
+cp ~/.config/ark-core/mainnet/delegates.json ~/delegate.json.backup
 ```
 
 ```
-rm -rf ~/.config/ark-core/ && ark config:publish --token=ark --network=devnet --reset
+rm -rf ~/.config/ark-core/ && ark config:publish --token=ark --network=mainnet --reset
 ```
 
 > *Copy over backup delegate.json file if applicable with the command below:*
 ```
-cp ~/delegate.json.backup ~/.config/ark-core/devnet/delegates.json
+cp ~/delegate.json.backup ~/.config/ark-core/mainnet/delegates.json
 ```
 
 <x-alert type="info">
@@ -90,11 +95,11 @@ yarn global upgrade
 pm2 start all
 ```
 <x-alert type=warning>
-In your logs you may see repeat messages about connecting to your database such as `Connecting to database: ark_devnet`. This is due to the database migration and can take up to 1 hour to complete depending on your server hardware.
+In your logs you may see repeat messages about connecting to your database such as `Connecting to database: ark_mainnet`. This is due to the database migration and can take up to 1 hour to complete depending on your server hardware.
 </x-alert>
 
 <x-alert type=info>
-Each runmode (`core`, `relay`, & `forger`) now contains their own configuration for plugins. This configuration file can be located here: `~/.config/ark-core/devnet/app.json`
+Each runmode (`core`, `relay`, & `forger`) now contains their own configuration for plugins. This configuration file can be located here: `~/.config/ark-core/mainnet/app.json`
 </x-alert>
 
 ### Reporting Problems
